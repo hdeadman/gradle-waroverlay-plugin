@@ -38,8 +38,16 @@ dependencies {
 Most other configuration is handled like the regular [Gradle WAR plugin](http://www.gradle.org/docs/current/userguide/war_plugin.html). There is one added convention:
 
 ```groovy
-warOverlay {
-    includeWarJars false // whether to include the jar files in the WAR. Default is false. If false, it might be useful to set transitive to `true` for the WAR dependency so its dependencies will be calculated and added
+war {
+    includeWarJars = false // whether to include the jar files in the WAR. Default is false. If false, it might be useful to set transitive to `true` for the WAR dependency so its dependencies will be calculated and added
+}
+```
+
+To exclude files from the war besides the war's jars, you can pass in an array of exclusion patterns. 
+Note that if the war being overlaid has dependencies and you are trying to exclude a specific jar, you will also need to exclude the transitive dependency of the war via gradle's dependency exclusion mechanism.   
+```groovy
+war {
+    overlayExcludes = [ "**/*.properties" ] // files to exclude from the war being overlaid
 }
 ```
 
