@@ -22,14 +22,16 @@ class WarOverlayPlugin implements Plugin<Project> {
                 war.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
                 war.doFirst {
                     war.classpath = war.classpath.filter { !it.name.endsWith(".war") }
-
                     war.project.configurations.runtime.each {
                         if (it.name.endsWith(".war")) {
                             def fileList = war.project.zipTree(it)
+                            def overlayExcludes = project.convention.plugins.warOverlay.overlayExcludes
+
                             if (project.convention.plugins.warOverlay.includeWarJars) {
-                                war.from fileList
+                                war.from fileList.matching { exclude overlayExcludes }
                             } else {
-                                war.from fileList.matching { exclude "**/*.jar" }
+                                def totalExcludes = (overlayExcludes  << "**/*.jar")
+                                war.from fileList.matching { exclude (overlayExcludes << "**/*.jar") }
                             }
                         }
                     }
@@ -44,6 +46,7 @@ class WarOverlayPlugin implements Plugin<Project> {
  */
 class WarOverlayPluginConvention {
     boolean includeWarJars = false
+    def overlayExcludes = []
 
     def warOverlay(Closure c) {
         c.delegate = this
