@@ -1,14 +1,24 @@
+plugins {
+    id 'net.researchgate.release' version '2.7.0'
+    id 'signing'
+}
+
 apply plugin: "groovy"
 apply plugin: "maven"
-apply plugin: "signing"
-
-apply from: 'http://tellurianring.com/projects/gradle-plugins/gradle-release/apply.groovy'
 
 repositories {
     mavenLocal()
     mavenCentral()
 
     maven { url "https://raw.github.com/synergian/wagon-git/releases"}
+}
+
+ext {
+    publishReleases = Boolean.getBoolean("publishReleases")
+    bintrayUsername = System.getProperty("bintrayUsername")
+    bintrayAPIKey = System.getProperty("bintrayAPIKey")
+    githubUsername = System.getProperty("githubUsername")
+    githubPassword = System.getProperty("githubPassword")
 }
 
 configurations {
@@ -19,7 +29,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    deployerJar "ar.com.synergian:wagon-git:0.2.0"
+    deployerJar "ar.com.synergian:wagon-git:0.3.0"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -38,7 +48,12 @@ artifacts {
     archives sourcesJar
 }
 
+def isArtifactSigningRequired = {
+    return (publishReleases && bintrayUsername != null && bintrayAPIKey != null)
+}
+
 signing {
+    required = isArtifactSigningRequired
     sign configurations.archives
 }
 
@@ -90,6 +105,3 @@ uploadArchives {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "1.8"
-}
