@@ -30,7 +30,6 @@ class WarOverlayPlugin implements Plugin<Project> {
                             if (project.convention.plugins.warOverlay.includeWarJars) {
                                 war.from fileList.matching { exclude overlayExcludes }
                             } else {
-                                def totalExcludes = (overlayExcludes  << "**/*.jar")
                                 war.from fileList.matching { exclude (overlayExcludes << "**/*.jar") }
                             }
                         }
