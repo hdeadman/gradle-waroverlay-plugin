@@ -1,4 +1,4 @@
-package scaldingspoon.gradle
+package net.the_deadmans.gradle
 
 import org.gradle.api.Action
 import org.gradle.api.Plugin

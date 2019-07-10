@@ -13,7 +13,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.scaldingspoon.gradle:gradle-waroverlay-plugin:0.9.3"
+        classpath net.the_deadmans.gradle:0.9.3"
     }
 }
 apply plugin: 'waroverlay'

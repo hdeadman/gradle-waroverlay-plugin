@@ -1,6 +1,6 @@
 plugins {
-    id 'net.researchgate.release' version '2.7.0'
-    id 'signing'
+    id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.10.0'
 }
 
 apply plugin: "groovy"
@@ -15,10 +15,6 @@ repositories {
 
 ext {
     publishReleases = Boolean.getBoolean("publishReleases")
-    bintrayUsername = System.getProperty("bintrayUsername")
-    bintrayAPIKey = System.getProperty("bintrayAPIKey")
-    githubUsername = System.getProperty("githubUsername")
-    githubPassword = System.getProperty("githubPassword")
 }
 
 configurations {
@@ -48,60 +44,20 @@ artifacts {
     archives sourcesJar
 }
 
-def isArtifactSigningRequired = {
-    return (publishReleases && bintrayUsername != null && bintrayAPIKey != null)
+
+pluginBundle {
+    website = 'https://github.com/hdeadman/gradle-waroverlay-plugin'
+    vcsUrl = 'https://github.com/hdeadman/gradle-waroverlay-plugin.git'
+    tags = ['war', 'overlay', 'cas']
 }
 
-signing {
-    required = isArtifactSigningRequired
-    sign configurations.archives
-}
-
-createReleaseTag.dependsOn uploadArchives
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)}
-            configuration = configurations.deployerJar
-            repository(url: "https://api.bintray.com/maven/scalding/maven/gradle-waroverlay-plugin") {
-                authentication(userName: bintrayUsername, password: bintrayAPIKey)
-            }
-            snapshotRepository(url: "git:snapshots://git@bitbucket.org:scalding/maven-repo.git") {
-                authentication(userName: githubUsername, password: githubPassword)
-            }
-            pom.project {
-                name "Gradle WAR Overlay"
-                packaging "jar"
-                description "A gradle plugin to functionality similar to the war overlay function in maven."
-                url "https://github.com/scalding/gradle-waroverlay-plugin"
-
-                scm {
-                    url "scm:git@github.com:scalding/gradle-waroverlay-plugin"
-                    connection "scm:git@github.com:scalding/gradle-waroverlay-plugin"
-                    developerConnection "scm:git@github.com:scalding/gradle-waroverlay-plugin"
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'scalding'
-                        name 'Jonathan Johnson'
-                    }
-                    developer {
-                        id 'dima'
-                        name 'Dmitriy Kopylenko'
-                    }
-                }
-            }
+gradlePlugin {
+    plugins {
+        warOverlayPlugin {
+            id = 'net.the_deadmans.waroverlay'
+            displayName = 'WAR Overlay'
+            description = 'A plugin for gradle to provide functionality similar to the war overlay function in maven.'
+            implementationClass = 'net.the_deadmans.gradle.WarOverlayPlugin'
         }
     }
 }
-
